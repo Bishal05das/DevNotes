@@ -1,0 +1,47 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/bishal05das/blog_app_1/config"
+	handler "github.com/bishal05das/blog_app_1/internal/delivery/handler"
+	"github.com/bishal05das/blog_app_1/internal/repository"
+	postusecase "github.com/bishal05das/blog_app_1/internal/usecase/post"
+	userusecase "github.com/bishal05das/blog_app_1/internal/usecase/user"
+	"github.com/bishal05das/blog_app_1/pkg/db"
+)
+
+func main() {
+	mux := http.NewServeMux()
+
+	cfg := config.GetConfig()
+
+	db, err := db.NewConnection(cfg)
+	if err != nil {
+		fmt.Println("err in database connection: ", err)
+		return
+	}
+
+	postRepo := repository.NewPostRepositoryDB(db)
+	postHandler := handler.NewPostHandler(postusecase.NewCreatePostUseCase(postRepo),
+		postusecase.NewGetPostByIDCase(postRepo),
+		postusecase.NewListPostUseCase(postRepo))
+
+	userRepo := repository.NewUserRepositoryDB(db)
+	userHandler := handler.NewUserHandler(userusecase.NewCreateUserUseCase(userRepo),
+		userusecase.NewGetUserUseCase(userRepo),
+		userusecase.NewListUserUseCase(userRepo),
+		userusecase.NewUpdateUserUseCase(userRepo))
+
+	mux.HandleFunc("POST /posts", postHandler.Create)
+	mux.HandleFunc("GET /posts", postHandler.List)
+	mux.HandleFunc("POST /users",userHandler.Create)
+	mux.HandleFunc("GET /users",userHandler.List)
+
+	fmt.Println("Listening to the Server: 3000")
+	err = http.ListenAndServe(":3000", mux)
+	if err != nil {
+		fmt.Println("Server failed to start:", err)
+	}
+}

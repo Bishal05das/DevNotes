@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS posts (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    user_id INT NOT NULL,
+    score INT NOT NULL DEFAULT 0
+);

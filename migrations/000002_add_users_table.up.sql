@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    is_admin BOOLEAN NOT NULL DEFAULT false,
+    reputation INT NOT NULL DEFAULT 0
+);
