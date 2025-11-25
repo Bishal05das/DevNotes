@@ -7,6 +7,7 @@ import (
 	"github.com/bishal05das/blog_app_1/config"
 	handler "github.com/bishal05das/blog_app_1/internal/delivery/handler"
 	"github.com/bishal05das/blog_app_1/internal/repository"
+	dailyquotesusecase "github.com/bishal05das/blog_app_1/internal/usecase/DailyQuotes"
 	postusecase "github.com/bishal05das/blog_app_1/internal/usecase/post"
 	userusecase "github.com/bishal05das/blog_app_1/internal/usecase/user"
 	"github.com/bishal05das/blog_app_1/pkg/db"
@@ -35,12 +36,14 @@ func main() {
 		userusecase.NewUpdateUserUseCase(userRepo))
 
 	supportHandler := handler.NewSupportFactory(userRepo,postRepo)
+	quotesHandler := handler.NewQuotesHnadler(dailyquotesusecase.NewDailyQuotes())
 
 	mux.HandleFunc("POST /posts", postHandler.Create)
 	mux.HandleFunc("GET /posts", postHandler.List)
 	mux.HandleFunc("POST /users",userHandler.Create)
 	mux.HandleFunc("GET /users",userHandler.List)
 	mux.HandleFunc("POST /posts/{id}/support",supportHandler.Support)
+	mux.HandleFunc("GET /dailyquotes",quotesHandler.GetQuotes)
 
 	fmt.Println("Listening to the Server: 3000")
 	err = http.ListenAndServe(":3000", mux)
