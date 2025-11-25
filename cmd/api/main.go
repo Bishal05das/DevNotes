@@ -34,10 +34,13 @@ func main() {
 		userusecase.NewListUserUseCase(userRepo),
 		userusecase.NewUpdateUserUseCase(userRepo))
 
+	supportHandler := handler.NewSupportFactory(userRepo,postRepo)
+
 	mux.HandleFunc("POST /posts", postHandler.Create)
 	mux.HandleFunc("GET /posts", postHandler.List)
 	mux.HandleFunc("POST /users",userHandler.Create)
 	mux.HandleFunc("GET /users",userHandler.List)
+	mux.HandleFunc("POST /posts/{id}/support",supportHandler.Support)
 
 	fmt.Println("Listening to the Server: 3000")
 	err = http.ListenAndServe(":3000", mux)

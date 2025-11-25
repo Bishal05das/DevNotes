@@ -1,8 +1,8 @@
 package repository
 
-
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/bishal05das/blog_app_1/internal/domain"
 	"github.com/jmoiron/sqlx"
@@ -62,7 +62,7 @@ func (h *UserRepositoryDB) DeleteUser(id int) error {
 }
 
 func (h *UserRepositoryDB) UpdateUser(u *domain.User) (*domain.User,error) {
-	query := `Update users SET name=$1,is_admin=$2,reputation=$3  WHERE id=$4`
+	query := `UPDATE users SET name=$1,is_admin=$2,reputation=$3  WHERE id=$4`
 	row := h.db.QueryRow(query,u.Name,u.IsAdmin,u.Reputation,u.ID)
 	err := row.Err()
 	if err != nil {
@@ -73,12 +73,22 @@ func (h *UserRepositoryDB) UpdateUser(u *domain.User) (*domain.User,error) {
 
 
 func (h *UserRepositoryDB) UpdateReputation(id int) error {
-	query := `Upadte users SET reputation = reputation + 5 WHERE id=$1; `
-	row := h.db.QueryRow(query,id)
-	err := row.Err()
-
+	query := `UPDATE users SET reputation = reputation + 5 WHERE id=$1; `
+	result,err := h.db.Exec(query,id)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update reputation: %w",err)
 	}
-	return nil
+
+	//Check if any rows were actually updated
+	rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        return fmt.Errorf("failed to get rows affected: %w", err)
+    }
+    
+    if rowsAffected == 0 {
+        return fmt.Errorf("no user found with id %d", id)
+    }
+    
+    //fmt.Printf("Successfully updated reputation for user %d\n", id)
+    return nil
 }
