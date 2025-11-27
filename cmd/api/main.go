@@ -9,6 +9,7 @@ import (
 	"github.com/bishal05das/blog_app_1/internal/repository"
 	dailyquotesusecase "github.com/bishal05das/blog_app_1/internal/usecase/DailyQuotes"
 	postusecase "github.com/bishal05das/blog_app_1/internal/usecase/post"
+	reportusecase "github.com/bishal05das/blog_app_1/internal/usecase/report"
 	userusecase "github.com/bishal05das/blog_app_1/internal/usecase/user"
 	"github.com/bishal05das/blog_app_1/pkg/db"
 )
@@ -38,12 +39,21 @@ func main() {
 	supportHandler := handler.NewSupportFactory(userRepo,postRepo)
 	quotesHandler := handler.NewQuotesHnadler(dailyquotesusecase.NewDailyQuotes())
 
+	//Formatters
+	jsonFormatter := reportusecase.NewJsonFormatterUseCase()
+	htmlFormatter := reportusecase.NewHtmlFormatterUseCase()
+
+	reportHandler := handler.NewReportHandler(reportusecase.NewPostReportUseCase(postRepo),reportusecase.NewUserReportUseCase(userRepo),jsonFormatter,htmlFormatter)
+
+
+
 	mux.HandleFunc("POST /posts", postHandler.Create)
 	mux.HandleFunc("GET /posts", postHandler.List)
 	mux.HandleFunc("POST /users",userHandler.Create)
 	mux.HandleFunc("GET /users",userHandler.List)
 	mux.HandleFunc("POST /posts/{id}/support",supportHandler.Support)
 	mux.HandleFunc("GET /dailyquotes",quotesHandler.GetQuotes)
+	mux.HandleFunc("GET /report/{report_type}/{id}",reportHandler.HandleReport)
 
 	fmt.Println("Listening to the Server: 3000")
 	err = http.ListenAndServe(":3000", mux)

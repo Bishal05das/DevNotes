@@ -6,11 +6,13 @@ import (
 
 	"github.com/bishal05das/blog_app_1/internal/domain"
 	"github.com/jmoiron/sqlx"
+
 )
 
 type UserRepositoryDB struct {
 	db *sqlx.DB
 }
+
 
 func NewUserRepositoryDB(db *sqlx.DB) *UserRepositoryDB {
 	return &UserRepositoryDB{
